@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#030712">
+<title>Blue Heart — Love You</title>
+<meta name="description" content="A glowing blue heart made of words, with a gentle animation and music.">
+<style>
+:root{color-scheme:dark;--blue:#30a8ff}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#030712;color:#f8fbff;font-family:Georgia,"Times New Roman",serif}
+body{min-height:100svh;overflow:hidden}
+main{position:relative;display:grid;place-items:center;min-height:100svh;isolation:isolate}
+canvas{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
+.vignette{position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 20%,rgba(1,5,18,.45) 75%,#030712 115%)}
+.content{width:min(92vw,650px);text-align:center;padding:2rem 1rem 5rem}
+.eyebrow{font:600 .72rem/1.4 system-ui,sans-serif;letter-spacing:.34em;text-transform:uppercase;color:#80cfff;opacity:.85;margin-bottom:1.2rem}
+h1{font-size:clamp(2.7rem,10vw,5.8rem);font-weight:700;letter-spacing:-.055em;line-height:1.02;margin:0;text-shadow:0 0 14px #2b9fff,0 0 42px #0879ff,0 0 90px #0757c9;animation:pulse 3s ease-in-out infinite}
+.subtitle{font:400 .9rem/1.6 system-ui,sans-serif;color:#b8dfff;letter-spacing:.08em;margin:1.25rem 0 2rem}
+button{font:600 .9rem system-ui,sans-serif;color:#eaf7ff;background:rgba(20,90,160,.22);border:1px solid rgba(110,200,255,.6);border-radius:999px;padding:.8rem 1.2rem;cursor:pointer;box-shadow:0 0 22px #147dca33;backdrop-filter:blur(8px)}
+button:hover{background:rgba(30,130,210,.35)}
+button:focus-visible{outline:2px solid white;outline-offset:4px}
+.sound{position:fixed;bottom:1.25rem;left:50%;transform:translateX(-50%);font-size:.78rem;padding:.65rem 1rem;white-space:nowrap}
+.sound[hidden]{display:none}
+@keyframes pulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.035);filter:brightness(1.2)}}
+@media(prefers-reduced-motion:reduce){h1{animation:none}}
+</style>
+</head>
+<body>
+<main>
+<canvas id="heart" aria-hidden="true"></canvas><div class="vignette" aria-hidden="true"></div>
+<section class="content" aria-label="Blue Heart message">
+<div class="eyebrow">A little something for you</div>
+<h1>Love You</h1>
+<p class="subtitle">Some feelings are better shown than said.</p>
+<button id="start" type="button">♥ &nbsp; Play the moment</button>
+</section>
+<button id="sound" class="sound" type="button" hidden>Pause music</button>
+<audio id="music" src="https://raw.githubusercontent.com/jaywebdev9/BlueHeart/main/love_you.mp3" preload="none" loop></audio>
+</main>
+<script>
+(() => {
+  const canvas=document.getElementById('heart'),ctx=canvas.getContext('2d');
+  const music=document.getElementById('music'),start=document.getElementById('start'),sound=document.getElementById('sound');
+  const words=['love you','Love You','LOVE YOU'];
+  const colors=['#4682b4','#1e90ff','#00bfff','#6495ed','#4169e1','#91d9ff'];
+  let w=0,h=0,dpr=1,particles=[],frame=0;
+  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function point(t){return{x:16*Math.pow(Math.sin(t),3),y:-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t))}}
+  function resize(){
+    dpr=Math.min(window.devicePixelRatio||1,2);w=innerWidth;h=innerHeight;
+    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);
+    particles=[];const scale=Math.min(w/42,h/34,17),cx=w/2,cy=h/2;
+    const count=Math.max(95,Math.min(180,Math.floor(w/5)));
+    for(let i=0;i<count;i++){const p=point(i/count*Math.PI*2);particles.push({x:cx+p.x*scale,y:cy+p.y*scale,delay:i*1.6,alpha:0,size:Math.random()*.16+.76,color:colors[Math.floor(Math.random()*colors.length)],word:words[Math.floor(Math.random()*words.length)],phase:Math.random()*6.28})}
+    let made=0,tries=0;
+    while(made<Math.max(65,Math.min(130,Math.floor(w/7)))&&tries<9000){
+      tries++;const x=(Math.random()*2-1)*15.8,y=(Math.random()*2-1)*15.8,xx=x/16,yy=-y/16,a=xx*xx+yy*yy-1;
+      if(a*a*a-xx*xx*yy*yy*yy>0)continue;
+      particles.push({x:cx+x*scale,y:cy+y*scale,delay:count*1.6+45+Math.random()*150,alpha:0,size:Math.random()*.18+.68,color:colors[Math.floor(Math.random()*colors.length)],word:words[Math.floor(Math.random()*words.length)],phase:Math.random()*6.28});made++;
+    }
+    particles.forEach(p=>{p.x=Math.max(8,Math.min(w-8,p.x));p.y=Math.max(8,Math.min(h-8,p.y))});
+  }
+  function draw(){
+    frame++;ctx.clearRect(0,0,w,h);
+    const glow=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,Math.min(w,h)*.48);
+    glow.addColorStop(0,'rgba(0,86,180,.13)');glow.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
+    for(const p of particles){
+      if(frame>p.delay&&p.alpha<1)p.alpha=Math.min(1,p.alpha+(reduced?.08:.055));
+      if(p.alpha<=0)continue;ctx.save();ctx.globalAlpha=p.alpha*(reduced?1:.78+.22*Math.sin(frame*.04+p.phase));
+      ctx.font='700 '+(p.size*(p.delay<300?Math.max(9,Math.min(13,w*.017)):Math.max(8,Math.min(11,w*.014))) )+'px Arial,sans-serif';
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.shadowColor=p.color;ctx.shadowBlur=10;ctx.fillStyle=p.color;ctx.fillText(p.word,p.x,p.y);ctx.restore();
+    }
+    requestAnimationFrame(draw);
+  }
+  start.addEventListener('click',async()=>{sound.hidden=false;try{await music.play();sound.textContent='Pause music'}catch(e){sound.textContent='Play music'}start.textContent='♥  Enjoy the moment';start.disabled=true;start.style.opacity='.65'});
+  sound.addEventListener('click',async()=>{if(music.paused){try{await music.play();sound.textContent='Pause music'}catch(e){sound.textContent='Play music'}}else{music.pause();sound.textContent='Play music'}});
+  window.addEventListener('resize',resize,{passive:true});resize();draw();
+})();
+</script>
+</body>
+</html>
