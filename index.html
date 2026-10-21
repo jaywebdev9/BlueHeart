@@ -31,19 +31,19 @@ button:focus-visible{outline:2px solid white;outline-offset:4px}
 <main>
 <canvas id="heart" aria-hidden="true"></canvas><div class="vignette" aria-hidden="true"></div>
 <section class="content" aria-label="Blue Heart message">
-<div class="eyebrow">A little something for you</div>
-<h1>Love You</h1>
+<div class="eyebrow">A something special for you</div>
+<h1>I Love You <br> Veronica</h1>
 <p class="subtitle">Some feelings are better shown than said.</p>
 <button id="start" type="button">♥ &nbsp; Play the moment</button>
 </section>
 <button id="sound" class="sound" type="button" hidden>Pause music</button>
-<audio id="music" src="https://raw.githubusercontent.com/jaywebdev9/BlueHeart/main/love_you.mp3" preload="none" loop></audio>
+<audio id="music" src="https://raw.githubusercontent.com/jaywebdev9/BlueHeart/main/vee.mp3" preload="none" loop></audio>
 </main>
 <script>
 (() => {
   const canvas=document.getElementById('heart'),ctx=canvas.getContext('2d');
   const music=document.getElementById('music'),start=document.getElementById('start'),sound=document.getElementById('sound');
-  const words=['love you','Love You','LOVE YOU'];
+  const words=['love you','Veronica','LOVE YOU'];
   const colors=['#4682b4','#1e90ff','#00bfff','#6495ed','#4169e1','#91d9ff'];
   let w=0,h=0,dpr=1,particles=[],frame=0;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
